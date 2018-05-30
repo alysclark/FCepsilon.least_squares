@@ -1,0 +1,222 @@
+<?xml version='1.0'?>
+<model name="FCepsilonRI" xmlns="http://www.cellml.org/cellml/1.1#" xmlns:cellml="http://www.cellml.org/cellml/1.1#">
+    <!--
+*******************************************************
+***         U   N   I   T   S                       ***
+*******************************************************
+-->
+    <units name="s">
+        <unit units="second"/>
+    </units>
+    <units name="uM">
+        <unit prefix="micro" units="mole"/>
+        <unit exponent="-1" units="liter"/>
+    </units>
+    <units name="per_s">
+        <unit exponent="-1" units="s"/>
+    </units>
+    <units name="uM_per_s">
+        <unit units="uM"/>
+        <unit exponent="-1" units="s"/>
+    </units>
+    <units name="per_uM_per_s">
+        <unit exponent="-1" units="uM"/>
+        <unit exponent="-1" units="s"/>
+    </units>
+    <!--
+*********************************************************
+***       C   O   M   P   O   N   E   N   T   S       ***
+*********************************************************
+-->
+    <component name="environment">
+        <variable name="t" public_interface="out" units="s"/>
+    </component>
+    <component name="FCepsilonRI">
+        <variable name="t" public_interface="in" units="s"/>
+        <variable name="J1" units="uM_per_s"/>
+        <variable name="J2" units="uM_per_s"/>
+        <variable name="J3" units="uM_per_s"/>
+        <variable initial_value="0.0332" name="Lyn" units="uM"/>
+        <variable initial_value="0.093" name="k_f3" units="per_s"/>
+        <variable initial_value="0.474" name="FC" units="uM"/>
+        <variable initial_value="0" name="pFC" units="uM"/>
+        <variable initial_value="0.403" name="Syk" units="uM"/>
+        <variable initial_value="0" name="pSyk" units="uM"/>
+        <variable initial_value="0" name="pGrb2" units="uM"/>
+        <!--Estimate        -->
+        <variable initial_value="1.0456" name="k_f1" units="per_s"/>
+        <variable initial_value="1.96" name="K_1" units="uM"/>
+        <variable initial_value="26.68" name="k_f2" units="per_s"/>
+        <variable initial_value="0.3237" name="K_2" units="uM"/>
+        <variable initial_value="0.00000095" name="K_3" units="uM"/>
+        <variable initial_value="0.0008" name="Grb2" units="uM"/>
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+                <eq/>
+                <ci>J1</ci>
+                <apply>
+                    <divide/>
+                    <apply>
+                        <times/>
+                        <ci>k_f1</ci>
+                        <ci>Lyn</ci>
+                        <ci>FC</ci>
+                    </apply>
+                    <apply>
+                        <plus/>
+                        <apply>
+                            <times/>
+                            <ci>K_1</ci>
+                            <apply>
+                                <plus/>
+                                <cn cellml:units="dimensionless">1</cn>
+                                <apply>
+                                    <divide/>
+                                    <apply>
+                                        <times/>
+                                        <ci>pFC</ci>
+                                        <ci>Syk</ci>
+                                    </apply>
+                                    <ci>K_2</ci>
+                                </apply>
+                            </apply>
+                        </apply>
+                        <ci>FC</ci>
+                    </apply>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <ci>J2</ci>
+                <apply>
+                    <divide/>
+                    <apply>
+                        <times/>
+                        <ci>k_f2</ci>
+                        <ci>pFC</ci>
+                        <ci>Syk</ci>
+                        <ci>Lyn</ci>
+                    </apply>
+                    <apply>
+                        <plus/>
+                        <apply>
+                            <times/>
+                            <ci>K_2</ci>
+                            <apply>
+                                <plus/>
+                                <cn cellml:units="dimensionless">1</cn>
+                                <apply>
+                                    <divide/>
+                                    <ci>pFC</ci>
+                                    <ci>K_1</ci>
+                                </apply>
+                            </apply>
+                        </apply>
+                        <apply>
+                            <times/>
+                            <ci>pFC</ci>
+                            <ci>Syk</ci>
+                        </apply>
+                    </apply>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <ci>J3</ci>
+                <apply>
+                    <divide/>
+                    <apply>
+                        <times/>
+                        <ci>k_f3</ci>
+                        <ci>pSyk</ci>
+                        <ci>Grb2</ci>
+                    </apply>
+                    <apply>
+                        <plus/>
+                        <ci>K_3</ci>
+                        <ci>Grb2</ci>
+                    </apply>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <apply>
+                    <diff/>
+                    <bvar>
+                        <ci>t</ci>
+                    </bvar>
+                    <ci>FC</ci>
+                </apply>
+                <apply>
+                    <minus/>
+                    <ci>J1</ci>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <apply>
+                    <diff/>
+                    <bvar>
+                        <ci>t</ci>
+                    </bvar>
+                    <ci>pFC</ci>
+                </apply>
+                <ci>J1</ci>
+            </apply>
+            <apply>
+                <eq/>
+                <apply>
+                    <diff/>
+                    <bvar>
+                        <ci>t</ci>
+                    </bvar>
+                    <ci>Syk</ci>
+                </apply>
+                <apply>
+                    <minus/>
+                    <ci>J2</ci>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <apply>
+                    <diff/>
+                    <bvar>
+                        <ci>t</ci>
+                    </bvar>
+                    <ci>pSyk</ci>
+                </apply>
+                <ci>J2</ci>
+            </apply>
+            <apply>
+                <eq/>
+                <apply>
+                    <diff/>
+                    <bvar>
+                        <ci>t</ci>
+                    </bvar>
+                    <ci>Grb2</ci>
+                </apply>
+                <apply>
+                    <minus/>
+                    <ci>J3</ci>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <apply>
+                    <diff/>
+                    <bvar>
+                        <ci>t</ci>
+                    </bvar>
+                    <ci>pGrb2</ci>
+                </apply>
+                <ci>J3</ci>
+            </apply>
+        </math>
+    </component>
+    <connection>
+        <map_components component_1="environment" component_2="FCepsilonRI"/>
+        <map_variables variable_1="t" variable_2="t"/>
+    </connection>
+</model>
