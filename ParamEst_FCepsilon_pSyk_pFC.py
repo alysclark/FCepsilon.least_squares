@@ -8,6 +8,7 @@ import OpenCOR as oc
 # Experiment data -- has to be regularly sampled
 expt_data = np.loadtxt('Exp_pSyk_pFC.csv', delimiter=',')
 expt_time = expt_data[...,0]
+expt_time = np.array([0, 240, 480, 960, 1920, 3840])
 expt_pSyk = expt_data[...,1]
 expt_pFC = expt_data[...,2]
 
@@ -30,7 +31,7 @@ results = simulation.results()
 
 # Simulation time points must match experiment data points
 initial_data.setStartingPoint(0.0)
-initial_data.setEndingPoint(5)
+initial_data.setEndingPoint(4000)
 initial_data.setPointInterval(1)
 
 # Specify as two parallel lists:
@@ -98,14 +99,17 @@ def model_function_lsq(params, expt_time, expt_pFC, expt_pSyk, return_type, debu
         raise
 
     if return_type == 'optimisation':
-        f1 = (results.states()[expt_state_uri_pSyk].values()-expt_pSyk)  
-        f2 = (results.states()[expt_state_uri_pFC].values()-expt_pFC)     
+        pSyk = results.states()[expt_state_uri_pSyk].values()[expt_time]
+        pFC = results.states()[expt_state_uri_pFC].values()[expt_time]
+        f1 = (pSyk-expt_pSyk)
+        f2 = (pFC-expt_pFC)
+        print (f1, f2)
         f = np.concatenate((f1,f2))
         print('SSD:')    
         print(sum(f**2))
     elif return_type == 'visualisation':
-        f1 = results.states()[expt_state_uri_pSyk].values()
-        f2 = results.states()[expt_state_uri_pFC].values()        
+        f1 = results.states()[expt_state_uri_pSyk].values()[expt_time]
+        f2 = results.states()[expt_state_uri_pFC].values()[expt_time]
         f = np.vstack((f1,f2))
     return f
 
