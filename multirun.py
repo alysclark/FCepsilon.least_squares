@@ -5,15 +5,15 @@ import math
 import OpenCOR as oc
 
 
-times = np.array([0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600])
-pGRB2 = np.array([0.0, 1.42, 2.97, 4.51, 5.47, 5.85, 6.19, 6.27, 6.32, 6.75, 6.49, 6.54, 6.62])
-
+times = np.array([0, 240, 480, 960, 1920, 3840])
+pFC = np.array([0.0, 0.0189, 0.0208, 0.0646, 0.0495, 0.0645])
+pSyk = np.array([0.0, 0.0143, 0.0255, 0.0303, 0.0242, 0.0202])
 
 class Simulation(object):
     def __init__(self):
         self.simulation = oc.simulation()
         self.simulation.data().setStartingPoint(0)
-        self.simulation.data().setEndingPoint(3600)
+        self.simulation.data().setEndingPoint(3840)
         self.simulation.data().setPointInterval(1)
         self.constants = self.simulation.data().constants()
         self.model_constants = OrderedDict({k: self.constants[k]
@@ -24,7 +24,7 @@ class Simulation(object):
         self.constants[c] = v
         self.simulation.run()
         return (self.simulation.results().points().values(),
-                self.simulation.results().states()['FCepsilonRI/pGrb2'].values())
+                self.simulation.results().states()['FCepsilonRI/pSyk'].values())
 
     def run(self, c, scale=2.0):
         self.simulation.clearResults()
@@ -44,16 +44,13 @@ class Simulation(object):
 
     def test(self, c, v):
         trial = self.run_once(c, s*v)[1][times]
-        return math.sqrt(np.sum((pGRB2 - trial)**2))
+        return math.sqrt(np.sum((pSyk - trial)**2))
 
 s = Simulation()
 
 v = s.test_run()
+#print(v)
+print({ k:d  for k, d in v.items() if d > 0.001 })
 
-print({ k: d for k, d in v.items() if d > 0.001 })
 
 
-'''
-FCepsilonRI/k_f3 9.682260032327033
-FCepsilonRI/K_3 1.3755810584148058
-'''
