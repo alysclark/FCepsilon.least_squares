@@ -50,19 +50,25 @@
         <variable initial_value="0" name="pFCLyn" units="uM"/>
         <variable initial_value="0" name="pFCSyk" units="uM"/>
         <variable initial_value="0" name="pSykGrb2" units="uM"/>
-        <variable initial_value="0" name="k_r1" units="per_s"/>
-        <variable initial_value="0" name="k_r3" units="per_s"/>
-        <variable initial_value="0" name="k_r5" units="per_s"/>
         <!--Estimate   -->
-        <variable initial_value="0.9" name="k_f1" units="per_uM_per_s"/>
+        <!--        var k_f1: per_uM_per_s {init: 0.005};
+        var k_r1: per_s {init: 0.001};
+        var k_f2: per_s {init: 70};
+        var k_f3: per_uM_per_s {init: 0.09};
+        var k_r3: per_s {init: 0.001};
+        var k_f4: per_s {init: 0.02};
+        var k_f5: per_uM_per_s {init: 1};
+        var k_r5: per_s {init: 1};
+        var Grb2: uM {init: 0.01};-->
+        <variable initial_value="0.0009" name="k_f1" units="per_uM_per_s"/>
         <variable initial_value="1" name="k_r1" units="per_s"/>
         <variable initial_value="1" name="k_f2" units="per_s"/>
         <variable initial_value="1" name="k_f3" units="per_uM_per_s"/>
-        <variable initial_value="0.9" name="k_r3" units="per_s"/>
+        <variable initial_value="1" name="k_r3" units="per_s"/>
         <variable initial_value="1" name="k_f4" units="per_s"/>
         <variable initial_value="1" name="k_f5" units="per_uM_per_s"/>
         <variable initial_value="1" name="k_r5" units="per_s"/>
-        <variable initial_value="0.01" name="Grb2" units="uM"/>
+        <variable initial_value="0.001" name="Grb2" units="uM"/>
         <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
                 <eq/>
