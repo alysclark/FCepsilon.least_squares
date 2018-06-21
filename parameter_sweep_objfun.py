@@ -9,15 +9,16 @@ from matplotlib import pyplot as plt
 import OpenCOR as oc
 
 #Some example output that we are maybe aiming for
-times = np.array([0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600])
-pGRB2 = np.array([0.0, 1.42, 2.97, 4.51, 5.47, 5.85, 6.19, 6.27, 6.32, 6.75, 6.49, 6.54, 6.62])
+times = np.array([0, 240, 480, 960, 1920, 3840])
+pFC = np.array([0.0, 0.0189, 0.0208, 0.0646, 0.0495, 0.0645])
+pSyk = np.array([0.0, 0.0143, 0.0255, 0.0303, 0.0242, 0.0202])
 
 
 class Simulation(object):
     def __init__(self):
         self.simulation = oc.simulation()
         self.simulation.data().setStartingPoint(0)
-        self.simulation.data().setEndingPoint(3600)
+        self.simulation.data().setEndingPoint(3900)
         self.simulation.data().setPointInterval(1)
         self.constants = self.simulation.data().constants()
         self.model_constants = OrderedDict({k: self.constants[k]
@@ -62,7 +63,7 @@ class Simulation(object):
             self.constants[k] = parameter_values[i]
         #print('Parameter set: ', parameter_values)
         self.simulation.run()
-        return (self.simulation.results().states()['FCepsilonRI/pGrb2'].values()[times])
+        return (self.simulation.results().states()['FCepsilonRI/pSyk'].values()[times])
         
     def evaluate_ssq(self, parameter_values):
         self.simulation.clearResults()
@@ -70,16 +71,19 @@ class Simulation(object):
             self.constants[k] = parameter_values[i]
         #print('Parameter set: ', parameter_values)
         self.simulation.run()
-        trial = self.simulation.results().states()['FCepsilonRI/pGrb2'].values()[times]
-        ssq = math.sqrt(np.sum((pGRB2-trial)**2))
+        trial_pSyk = self.simulation.results().states()['FCepsilonRI/pSyk'].values()[times]
+        ssq_pSyk = math.sqrt(np.sum((pSyk-trial_pSyk)**2))
 		
-        #plt.plot(times,trial)
+        trial_pFC = self.simulation.results().states()['FCepsilonRI/pFC'].values()[times]
+        ssq_pFC = math.sqrt(np.sum((pFC-trial_pFC)**2))
+		
+        plt.plot(times,trial_pFC)
         #ssq=0.0
         #for i in range(0,len(differ)):
         #    ssq = ssq+differ[i]**2
         #ssq = np.sqrt(ssq)
-        print(ssq)
-        return(ssq)
+        print(ssq_pSyk,ssq_pFC)
+        return(ssq_pSyk)
         
         
     def run_parameter_sweep(self):
@@ -94,4 +98,4 @@ s = Simulation()
 
 v = s.run_parameter_sweep()
 
-#plt.show()
+plt.show()
