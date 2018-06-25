@@ -10,11 +10,14 @@ import OpenCOR as oc
 
 #Some example output that we are maybe aiming for
 times = np.array([0,  480, 960, 1920, 3840])
-pFC = np.array([0.0,  0.0208, 0.0646, 0.0495, 0.0645])
-pSyk = np.array([0.0,  0.0255, 0.0303, 0.0242, 0.0202])
+pFC = np.array([0.0, 0.0408, 0.136, 0.105, 0.136])*.474
+pSyk = np.array([0.0,  0.05437, 0.0644, 0.0518, 0.04373])*.474
 
-bounds_dictionary = {'FCepsilonRI/k_f1': [-4,2], 'FCepsilonRI/k_r1': [-3,1], 'FCepsilonRI/k_f2': [-4,2], 'FCepsilonRI/k_f3': [-4,2],
-        'FCepsilonRI/k_r3': [-3,1], 'FCepsilonRI/k_f4': [-4,2], 'FCepsilonRI/k_f5': [-4,2], 'FCepsilonRI/k_r5': [-3,1],'FCepsilonRI/k_f6': [-4,2]}
+bounds_dictionary = {'FCepsilonRI/V_1': [-6,3], 'FCepsilonRI/k_f5': [-6,3], 'FCepsilonRI/K_1': [-6,3], 'FCepsilonRI/V_2': [-6,3],
+    'FCepsilonRI/K_2': [-6,3], 'FCepsilonRI/k_f6': [-6,3], 'FCepsilonRI/k_f4': [-6,3], 'FCepsilonRI/k_f3': [-6,3], 'FCepsilonRI/k_r1': [-6,3], 'FCepsilonRI/k_r3': [-6,3],
+	'FCepsilonRI/k_f2': [-6,3], 'FCepsilonRI/Lyn': [-6,3], 'FCepsilonRI/K_3': [-6,3], 'FCepsilonRI/K_4': [-6,3], 'FCepsilonRI/k_f1': [-6,3], 'FCepsilonRI/K_6': [-6,3], 
+	'FCepsilonRI/K_5': [-6,3], 'FCepsilonRI/k_f7': [-6,3]}
+	
 class Simulation(object):
     def __init__(self):
         self.simulation = oc.simulation()
@@ -25,13 +28,13 @@ class Simulation(object):
         self.model_constants = OrderedDict({k: self.constants[k]
                                             for k in self.constants.keys()})
         
-        print(self.model_constants)
+        #print(self.model_constants)
         
         # default the parameter bounds to something sensible, needs to be set directly
         bounds = []
         for c in self.constants:
             v = self.constants[c];
-            print(bounds_dictionary[c][1])
+            #print(bounds_dictionary[c][1])
             #print(v)
             bounds.append([bounds_dictionary[c][0], bounds_dictionary[c][1]])
         # define our sensitivity analysis problem
@@ -40,7 +43,7 @@ class Simulation(object):
                    'names': self.constants.keys(),
                    'bounds': bounds
                    }
-        self.samples = saltelli.sample(self.problem, 3)
+        self.samples = saltelli.sample(self.problem, 20)
     
     def run_once(self, c, v):
         self.simulation.resetParameters()
@@ -69,23 +72,31 @@ class Simulation(object):
     
     def evaluate_ssq(self, parameter_values):
         self.simulation.clearResults()
+        self.simulation.resetParameters()
 		#This is not actually clearing and resetting results
         for i, k in enumerate(self.model_constants.keys()):
             self.constants[k] = 10.0**parameter_values[i]
-        print('Parameter set: ', self.constants)
+        #print('Parameter set: ', self.constants)
         self.simulation.run()
         trial_pSyk = self.simulation.results().states()['FCepsilonRI/pSyk'].values()[times]
         ssq_pSyk = math.sqrt(np.sum((pSyk-trial_pSyk)**2))
         
-        trial_pFC = self.simulation.results().states()['FCepsilonRI/pFC'].values()[times]
+        trial_pFC = self.simulation.results().states()['FCepsilonRI/pFC'].values()[times] #+ self.simulation.results().states()['FCepsilonRI/pFCLyn'].values()[times] + self.simulation.results().states()['FCepsilonRI/pFCSyk'].values()[times]
         ssq_pFC = math.sqrt(np.sum((pFC-trial_pFC)**2))
+
+        if(ssq_pFC < 0.1 and ssq_pSyk <0.1):
+            print('Parameter set: ', self.constants)
+            ax1.plot(times,trial_pFC)
+            ax2.plot(times,trial_pSyk)
+            #plt.plot(ssq_pFC,ssq_pSyk,'*')
+            print(ssq_pSyk, ssq_pFC)
         
-        plt.plot(times,trial_pSyk)
+        #plt.plot(times,trial_pFC)
         #ssq=0.0
         #for i in range(0,len(differ)):
         #    ssq = ssq+differ[i]**2
         #ssq = np.sqrt(ssq)
-        print(ssq_pSyk,ssq_pFC)
+
         return(ssq_pSyk)
         
     
@@ -96,9 +107,11 @@ class Simulation(object):
         
         return Y
 
-
+plt.close('all')
+fig, (ax1, ax2) = plt.subplots(2, sharey=True)
 s = Simulation()
 
 v = s.run_parameter_sweep()
-plt.plot(times,pSyk,'*')
+ax1.plot(times,pFC,'*')
+ax2.plot(times,pSyk,'*')
 plt.show()
