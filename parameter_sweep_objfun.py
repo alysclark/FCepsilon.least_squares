@@ -43,7 +43,7 @@ class Simulation(object):
                    'names': self.constants.keys(),
                    'bounds': bounds
                    }
-        self.samples = saltelli.sample(self.problem, 20)
+        self.samples = saltelli.sample(self.problem, 1)
     
     def run_once(self, c, v):
         self.simulation.resetParameters()
@@ -85,25 +85,23 @@ class Simulation(object):
         ssq_pFC = math.sqrt(np.sum((pFC-trial_pFC)**2))
 
         if(ssq_pFC < 0.1 and ssq_pSyk <0.1):
-            print('Parameter set: ', self.constants)
+            #print('Parameter set: ', self.constants)
             ax1.plot(times,trial_pFC)
             ax2.plot(times,trial_pSyk)
             #plt.plot(ssq_pFC,ssq_pSyk,'*')
-            print(ssq_pSyk, ssq_pFC)
+            #print(ssq_pSyk, ssq_pFC)
         
-        #plt.plot(times,trial_pFC)
-        #ssq=0.0
-        #for i in range(0,len(differ)):
-        #    ssq = ssq+differ[i]**2
-        #ssq = np.sqrt(ssq)
-
-        return(ssq_pSyk)
+        return([ssq_pSyk+ssq_pFC,ssq_pSyk, ssq_pFC])
         
     
     def run_parameter_sweep(self):
-        Y = np.zeros([self.samples.shape[0]])
+        Y = np.zeros([self.samples.shape[0],3+self.samples.shape[1]])
         for i, X in enumerate(self.samples):
-            Y[i] = self.evaluate_ssq(X)
+            Y[i,0:3] = self.evaluate_ssq(X)
+            Y[i,3:self.samples.shape[1]+3]=X
+        Z=np.sort(Y,axis = 0)
+		
+        print(Z)
         
         return Y
 
