@@ -41,103 +41,48 @@
         <variable name="J6" units="uM_per_s"/>
         <variable name="J7" units="uM_per_s"/>
         <variable name="J8" units="uM_per_s"/>
-        <variable name="J9" units="uM_per_s"/>
         <!--variables-->
-        <variable initial_value="9.59075552750283e-5" name="Lyn" units="uM"/>
         <variable initial_value="0.0471623513639183" name="pLyn" units="uM"/>
         <variable initial_value="0.473765727686631" name="FC" units="uM"/>
-        <variable initial_value="1.2354479574613e-8" name="pFC" units="uM"/>
+        <variable initial_value="0.0" name="pFC" units="uM"/>
         <variable initial_value="0.402903914280305" name="Syk" units="uM"/>
-        <variable initial_value="3.56686625774974e-6" name="pSyk" units="uM"/>
+        <variable initial_value="0.0" name="pSyk" units="uM"/>
         <variable initial_value="0" name="Grb2" units="uM"/>
         <variable initial_value="0" name="pGrb2" units="uM"/>
-        <variable initial_value="0.000141615478969472" name="pFCLyn" units="uM"/>
-        <variable initial_value="9.2518853437736e-5" name="pFCSyk" units="uM"/>
         <variable initial_value="0" name="PI3k" units="uM"/>
         <variable initial_value="0" name="PI3kstar" units="uM"/>
         <!--rate constants-->
-        <variable initial_value="0.000611128886929471" name="k_f1" units="per_uM_per_s"/>
-        <variable initial_value="0.0962494901157521" name="k_r1" units="per_s"/>
-        <variable initial_value="0.000174265307716232" name="k_f2" units="per_s"/>
-        <variable initial_value="60.0233613412901" name="k_f3" units="per_uM_per_s"/>
-        <variable initial_value="0.00296264549385648" name="k_r3" units="per_s"/>
-        <variable initial_value="1.9588094362718e-5" name="k_f4" units="per_s"/>
-        <variable initial_value="24.6377794085951" name="k_f5" units="per_uM_per_s"/>
-        <variable initial_value="4.50111710945031" name="K_1" units="uM"/>
-        <variable initial_value="0.0137926729214771" name="K_2" units="uM"/>
-        <variable initial_value="1.04835365218866" name="K_3" units="uM"/>
-        <variable initial_value="89.9707959303093" name="V_1" units="uM_per_s"/>
-        <variable initial_value="0.0322692641788488" name="k_f6" units="per_uM_per_s"/>
-        <variable initial_value="0.00997753907993274" name="K_4" units="uM"/>
-        <variable initial_value="0.156435724368834" name="K_5" units="uM"/>
-        <variable initial_value="492.473439247484" name="K_6" units="uM"/>
-        <variable initial_value="833.486245818386" name="V_2" units="uM_per_s"/>
-        <variable initial_value="1.02044373222845e-6" name="k_f7" units="per_s"/>
+        <variable initial_value="1.0" name="k_f1" units="per_uM_per_s"/>
+        <variable initial_value="1.0" name="k_f2" units="per_uM_per_s"/>
+        <variable initial_value="1.0" name="k_f3" units="per_uM_per_s"/>
+        <variable initial_value="1.0" name="k_f4" units="per_uM_per_s"/>
+        <variable initial_value="1.0" name="K_1" units="uM"/>
+        <variable initial_value="1.0" name="K_2" units="uM"/>
+        <variable initial_value="1.0" name="K_3" units="uM"/>
+        <variable initial_value="1.0" name="K_4" units="uM"/>
+        <variable initial_value="1.0" name="K_5" units="uM"/>
+        <variable initial_value="1.0" name="K_6" units="uM"/>
+        <variable initial_value="1.0" name="K_7" units="uM"/>
+        <variable initial_value="1.0" name="K_8" units="uM"/>
+        <variable initial_value="1.0" name="K_9" units="uM"/>
+        <variable initial_value="1.0" name="K_10" units="uM"/>
+        <variable initial_value="1.0" name="K_11" units="uM"/>
+        <variable initial_value="1.0" name="K_12" units="uM"/>
+        <variable initial_value="1.0" name="V_1" units="uM_per_s"/>
+        <variable initial_value="1.0" name="V_2" units="uM_per_s"/>
+        <variable initial_value="1.0" name="V_3" units="uM_per_s"/>
+        <variable initial_value="1.0" name="V_4" units="uM_per_s"/>
         <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
                 <eq/>
                 <ci>J1</ci>
                 <apply>
-                    <minus/>
-                    <apply>
-                        <times/>
-                        <ci>k_f1</ci>
-                        <ci>FC</ci>
-                        <ci>pLyn</ci>
-                    </apply>
-                    <apply>
-                        <times/>
-                        <ci>k_r1</ci>
-                        <ci>pFCLyn</ci>
-                    </apply>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <ci>J2</ci>
-                <apply>
-                    <times/>
-                    <ci>k_f2</ci>
-                    <ci>pFCLyn</ci>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <ci>J3</ci>
-                <apply>
-                    <minus/>
-                    <apply>
-                        <times/>
-                        <ci>k_f3</ci>
-                        <ci>pFC</ci>
-                        <ci>Syk</ci>
-                    </apply>
-                    <apply>
-                        <times/>
-                        <ci>k_r3</ci>
-                        <ci>pFCSyk</ci>
-                    </apply>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <ci>J4</ci>
-                <apply>
-                    <times/>
-                    <ci>k_f4</ci>
-                    <ci>pFCSyk</ci>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <ci>J5</ci>
-                <apply>
                     <divide/>
                     <apply>
                         <times/>
-                        <ci>k_f5</ci>
-                        <ci>pSyk</ci>
-                        <ci>Grb2</ci>
+                        <ci>k_f1</ci>
+                        <ci>pLyn</ci>
+                        <ci>FC</ci>
                     </apply>
                     <apply>
                         <plus/>
@@ -149,8 +94,102 @@
                                 <cn cellml:units="dimensionless">1.0</cn>
                                 <apply>
                                     <divide/>
-                                    <ci>pGrb2</ci>
+                                    <ci>pFC</ci>
                                     <ci>K_2</ci>
+                                </apply>
+                            </apply>
+                        </apply>
+                        <ci>FC</ci>
+                    </apply>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <ci>J2</ci>
+                <apply>
+                    <divide/>
+                    <apply>
+                        <times/>
+                        <ci>V_1</ci>
+                        <ci>pFC</ci>
+                    </apply>
+                    <apply>
+                        <plus/>
+                        <ci>K_3</ci>
+                        <ci>pFC</ci>
+                    </apply>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <ci>J3</ci>
+                <apply>
+                    <divide/>
+                    <apply>
+                        <times/>
+                        <ci>k_f2</ci>
+                        <ci>pFC</ci>
+                        <ci>Syk</ci>
+                    </apply>
+                    <apply>
+                        <plus/>
+                        <apply>
+                            <times/>
+                            <ci>K_4</ci>
+                            <apply>
+                                <plus/>
+                                <cn cellml:units="dimensionless">1.0</cn>
+                                <apply>
+                                    <divide/>
+                                    <ci>pSyk</ci>
+                                    <ci>K_5</ci>
+                                </apply>
+                            </apply>
+                        </apply>
+                        <ci>Syk</ci>
+                    </apply>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <ci>J4</ci>
+                <apply>
+                    <divide/>
+                    <apply>
+                        <times/>
+                        <ci>V_2</ci>
+                        <ci>pSyk</ci>
+                    </apply>
+                    <apply>
+                        <plus/>
+                        <ci>K_6</ci>
+                        <ci>pSyk</ci>
+                    </apply>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <ci>J5</ci>
+                <apply>
+                    <divide/>
+                    <apply>
+                        <times/>
+                        <ci>k_f3</ci>
+                        <ci>pSyk</ci>
+                        <ci>Grb2</ci>
+                    </apply>
+                    <apply>
+                        <plus/>
+                        <apply>
+                            <times/>
+                            <ci>K_7</ci>
+                            <apply>
+                                <plus/>
+                                <cn cellml:units="dimensionless">1.0</cn>
+                                <apply>
+                                    <divide/>
+                                    <ci>pGrb2</ci>
+                                    <ci>K_8</ci>
                                 </apply>
                             </apply>
                         </apply>
@@ -165,12 +204,12 @@
                     <divide/>
                     <apply>
                         <times/>
-                        <ci>V_1</ci>
+                        <ci>V_3</ci>
                         <ci>pGrb2</ci>
                     </apply>
                     <apply>
                         <plus/>
-                        <ci>K_3</ci>
+                        <ci>K_9</ci>
                         <ci>pGrb2</ci>
                     </apply>
                 </apply>
@@ -182,7 +221,7 @@
                     <divide/>
                     <apply>
                         <times/>
-                        <ci>k_f6</ci>
+                        <ci>k_f4</ci>
                         <ci>pGrb2</ci>
                         <ci>PI3k</ci>
                     </apply>
@@ -190,14 +229,14 @@
                         <plus/>
                         <apply>
                             <times/>
-                            <ci>K_4</ci>
+                            <ci>K_10</ci>
                             <apply>
                                 <plus/>
                                 <cn cellml:units="dimensionless">1.0</cn>
                                 <apply>
                                     <divide/>
                                     <ci>PI3kstar</ci>
-                                    <ci>K_5</ci>
+                                    <ci>K_11</ci>
                                 </apply>
                             </apply>
                         </apply>
@@ -212,23 +251,14 @@
                     <divide/>
                     <apply>
                         <times/>
-                        <ci>V_2</ci>
+                        <ci>V_4</ci>
                         <ci>PI3kstar</ci>
                     </apply>
                     <apply>
                         <plus/>
-                        <ci>K_6</ci>
+                        <ci>K_12</ci>
                         <ci>PI3kstar</ci>
                     </apply>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <ci>J9</ci>
-                <apply>
-                    <times/>
-                    <ci>k_f7</ci>
-                    <ci>Lyn</ci>
                 </apply>
             </apply>
             <apply>
@@ -246,54 +276,6 @@
                         <minus/>
                         <ci>J1</ci>
                     </apply>
-                    <ci>J4</ci>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <apply>
-                    <diff/>
-                    <bvar>
-                        <ci>t</ci>
-                    </bvar>
-                    <ci>pLyn</ci>
-                </apply>
-                <apply>
-                    <plus/>
-                    <apply>
-                        <minus/>
-                        <ci>J1</ci>
-                    </apply>
-                    <ci>J9</ci>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <apply>
-                    <diff/>
-                    <bvar>
-                        <ci>t</ci>
-                    </bvar>
-                    <ci>Lyn</ci>
-                </apply>
-                <apply>
-                    <minus/>
-                    <ci>J2</ci>
-                    <ci>J9</ci>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <apply>
-                    <diff/>
-                    <bvar>
-                        <ci>t</ci>
-                    </bvar>
-                    <ci>pFCLyn</ci>
-                </apply>
-                <apply>
-                    <minus/>
-                    <ci>J1</ci>
                     <ci>J2</ci>
                 </apply>
             </apply>
@@ -308,8 +290,8 @@
                 </apply>
                 <apply>
                     <minus/>
+                    <ci>J1</ci>
                     <ci>J2</ci>
-                    <ci>J3</ci>
                 </apply>
             </apply>
             <apply>
@@ -322,22 +304,11 @@
                     <ci>Syk</ci>
                 </apply>
                 <apply>
-                    <minus/>
-                    <ci>J3</ci>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <apply>
-                    <diff/>
-                    <bvar>
-                        <ci>t</ci>
-                    </bvar>
-                    <ci>pFCSyk</ci>
-                </apply>
-                <apply>
-                    <minus/>
-                    <ci>J3</ci>
+                    <plus/>
+                    <apply>
+                        <minus/>
+                        <ci>J3</ci>
+                    </apply>
                     <ci>J4</ci>
                 </apply>
             </apply>
@@ -350,7 +321,11 @@
                     </bvar>
                     <ci>pSyk</ci>
                 </apply>
-                <ci>J4</ci>
+                <apply>
+                    <minus/>
+                    <ci>J3</ci>
+                    <ci>J4</ci>
+                </apply>
             </apply>
             <apply>
                 <eq/>
