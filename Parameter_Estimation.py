@@ -54,12 +54,9 @@ initial_data.setPointInterval(1)
 constant_parameter_names = list(constants.keys())
 state_parameter_names = list(states.keys())
 
-print(len(fit_parameters_exclude))
-
 #If there are any parameters yoy don't want to fit you want to not fit exclude them
 if fit_parameters:
     for i in range(0,len(fit_parameters_exclude)):
-        print(fit_parameters_exclude[i])
         constant_parameter_names.remove(fit_parameters_exclude[i])
 		
 #If there are any parameters yoy don't want to fit you want to not fit exclude them
@@ -77,7 +74,6 @@ if fit_state_parameter:
 else:
     initial_state_params = []
 initial_params = initial_constant_params + initial_state_params
-print(initial_params)
 
 # # Set bounds for parameters (optional)
 parameter_bounds = [len(initial_params)*[0], len(initial_params)*[6]]
@@ -133,15 +129,16 @@ opt =least_squares(model_function_lsq, initial_params, args=(times,pFC,pSyk, 'op
 
 opt_constant_parameters = opt.x[0:len(constant_parameter_names)]
 opt_state_parameters = opt.x[len(constant_parameter_names):len(state_parameter_names)+len(constant_parameter_names)]
-print('Constant parameters:')
-for n, v in enumerate(opt_constant_parameters):
-    print('  {}: {:g} ({:g})'.format(constant_parameter_names[n], v, initial_constant_params[n]))
+if fit_parameters:
+    print('Constant parameters:')
+    for n, v in enumerate(opt_constant_parameters):
+        print('  {}: {:g} ({:g})'.format(constant_parameter_names[n], v, initial_constant_params[n]))
 if fit_state_parameter:
     print('State parameters:')
     for n, v in enumerate(opt_state_parameters):
         print('  {}: {:g} ({:g})'.format(state_parameter_names[n], v, initial_state_params[n]))
 
-f =model_function_lsq(opt.x, times, pSyk, pFC,'visualisation', debug=True)
+f =model_function_lsq(opt.x, times, pSyk, pFC,'visualisation', debug=False)
 
 fig, ax = plt.subplots()
 plt.plot(times, pSyk, 'o', label='Experiment pSyk', color='red')
