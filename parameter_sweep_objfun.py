@@ -11,7 +11,7 @@ import OpenCOR as oc
 
 bounds_dictionary = {'FCepsilonRI/k_f1': [-5,2], 'FCepsilonRI/k_f2': [-5,2],'FCepsilonRI/k_f3': [-5,2], 'FCepsilonRI/k_f4': [-5,2],'FCepsilonRI/K_1': [-5,2], 'FCepsilonRI/K_2': [-5,2],'FCepsilonRI/K_3': [-5,2],
 	'FCepsilonRI/K_4': [-5,2], 'FCepsilonRI/K_5': [-5,2],'FCepsilonRI/K_6': [-5,2], 'FCepsilonRI/K_7': [-5,2],'FCepsilonRI/K_8': [-5,2], 'FCepsilonRI/K_9': [-5,2],'FCepsilonRI/K_10': [-5,2], 'FCepsilonRI/K_11': [-5,2],
-	'FCepsilonRI/K_12': [-5,2],'FCepsilonRI/V_1': [-5,2],'FCepsilonRI/V_2': [-5,2],'FCepsilonRI/V_3': [-5,2],'FCepsilonRI/V_4': [-5,2], 'FCepsilonRI/pLyn': [-1.32640456,-1.32640455]}
+	'FCepsilonRI/K_12': [-5,2],'FCepsilonRI/V_1': [-5,2],'FCepsilonRI/V_2': [-5,2],'FCepsilonRI/V_3': [-5,2],'FCepsilonRI/V_4': [-5,2]}
 
 # The state variable  or variables in the model that the data represents
 expt_state_uri = ['FCepsilonRI/pFC','FCepsilonRI/pSyk']
@@ -23,10 +23,13 @@ exp_data = np.zeros([num_series,len(times)])
 exp_data[0,:] = np.array([0.0, 0.0408, 0.136, 0.105, 0.136])*.474 #pFC
 exp_data[1,:] = np.array([0.0,  0.05437, 0.0644, 0.0518, 0.04373])*.474 #pSyk
 
-
-
 #Number of samples to generate for each parameter
 num_samples = 2
+
+
+#List of parameters you want to exclude from fit
+fit_parameters_exclude = ['FCepsilonRI/pLyn']
+
 
 class Simulation(object):
     def __init__(self):
@@ -35,21 +38,30 @@ class Simulation(object):
         self.simulation.data().setEndingPoint(3900)
         self.simulation.data().setPointInterval(1)
         self.constants = self.simulation.data().constants()
+        self.constant_parameter_names = list(self.constants.keys())
+											
+        for i in range(0,len(fit_parameters_exclude)):
+            self.constant_parameter_names.remove(fit_parameters_exclude[i])
+			
         self.model_constants = OrderedDict({k: self.constants[k]
-                                            for k in self.constants.keys()})
+                                            for k in self.constant_parameter_names})
+
+        print('model const:')
         
-        #print(self.model_constants)
+        print(self.model_constants)
+        print('const:')
+        print(self.constants)
         
         # default the parameter bounds to something sensible, needs to be set directly
         bounds = []
-        print(self.constants)
-        for c in self.constants:
+        for c in self.constant_parameter_names:
             v = self.constants[c];
+            print(c,v)
             bounds.append([bounds_dictionary[c][0], bounds_dictionary[c][1]])
         # define our sensitivity analysis problem
         self.problem = {
-                   'num_vars': len(self.constants),
-                   'names': self.constants.keys(),
+                   'num_vars': len(self.constant_parameter_names),
+                   'names': self.constant_parameter_names,
                    'bounds': bounds
                    }
         self.samples = saltelli.sample(self.problem, num_samples)
@@ -61,7 +73,7 @@ class Simulation(object):
         return (self.simulation.results().points().values(),
                 self.simulation.results().states()['FCepsilonRI/pSyk'].values())
     
-    def run(self, c, scale=2.0):
+    def run_sensitvity(self, c, scale=2.0):
         self.simulation.clearResults()
         v = self.model_constants[c]
         base = self.run_once(c, v)[1][times]
@@ -85,6 +97,7 @@ class Simulation(object):
 		#This is not actually clearing and resetting results
         for i, k in enumerate(self.model_constants.keys()):
             self.constants[k] = 10.0**parameter_values[i]
+            print(k,self.constants[k])
         #print('Parameter set: ', self.constants)
         self.simulation.run()
         trial = np.zeros([num_series,len(times)])
@@ -111,7 +124,6 @@ class Simulation(object):
         return Z
 
     def plot_n_best(self,n,param_sweep_results):
-        print(param_sweep_results[0:3,:])
         for i in range(0,n):
             self.simulation.clearResults()
             self.simulation.resetParameters()
