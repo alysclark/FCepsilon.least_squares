@@ -8,15 +8,25 @@ from matplotlib import pyplot as plt
 
 import OpenCOR as oc
 
-#Some example output that we are maybe aiming for
-times = np.array([0,  480, 960, 1920, 3840])
-pFC = np.array([0.0, 0.0408, 0.136, 0.105, 0.136])*.474
-pSyk = np.array([0.0,  0.05437, 0.0644, 0.0518, 0.04373])*.474
 
 bounds_dictionary = {'FCepsilonRI/k_f1': [-5,2], 'FCepsilonRI/k_f2': [-5,2],'FCepsilonRI/k_f3': [-5,2], 'FCepsilonRI/k_f4': [-5,2],'FCepsilonRI/K_1': [-5,2], 'FCepsilonRI/K_2': [-5,2],'FCepsilonRI/K_3': [-5,2],
 	'FCepsilonRI/K_4': [-5,2], 'FCepsilonRI/K_5': [-5,2],'FCepsilonRI/K_6': [-5,2], 'FCepsilonRI/K_7': [-5,2],'FCepsilonRI/K_8': [-5,2], 'FCepsilonRI/K_9': [-5,2],'FCepsilonRI/K_10': [-5,2], 'FCepsilonRI/K_11': [-5,2],
 	'FCepsilonRI/K_12': [-5,2],'FCepsilonRI/V_1': [-5,2],'FCepsilonRI/V_2': [-5,2],'FCepsilonRI/V_3': [-5,2],'FCepsilonRI/V_4': [-5,2], 'FCepsilonRI/pLyn': [-1.32640456,-1.32640455]}
 
+# The state variable  or variables in the model that the data represents
+expt_state_uri = ['FCepsilonRI/pFC','FCepsilonRI/pSyk']
+
+#Some example output that we are maybe aiming for
+times = np.array([0,  480, 960, 1920, 3840])
+num_series = 2
+exp_data = np.zeros([num_series,len(times)])
+exp_data[0,:] = np.array([0.0, 0.0408, 0.136, 0.105, 0.136])*.474 #pFC
+exp_data[1,:] = np.array([0.0,  0.05437, 0.0644, 0.0518, 0.04373])*.474 #pSyk
+
+
+
+#Number of samples to generate for each parameter
+num_samples = 2
 
 class Simulation(object):
     def __init__(self):
@@ -35,9 +45,6 @@ class Simulation(object):
         print(self.constants)
         for c in self.constants:
             v = self.constants[c];
-            print(c)
-            print(bounds_dictionary[c][1])
-            print(v)
             bounds.append([bounds_dictionary[c][0], bounds_dictionary[c][1]])
         # define our sensitivity analysis problem
         self.problem = {
@@ -45,7 +52,7 @@ class Simulation(object):
                    'names': self.constants.keys(),
                    'bounds': bounds
                    }
-        self.samples = saltelli.sample(self.problem, 50)
+        self.samples = saltelli.sample(self.problem, num_samples)
     
     def run_once(self, c, v):
         self.simulation.resetParameters()
@@ -80,28 +87,25 @@ class Simulation(object):
             self.constants[k] = 10.0**parameter_values[i]
         #print('Parameter set: ', self.constants)
         self.simulation.run()
-        trial_pSyk = self.simulation.results().states()['FCepsilonRI/pSyk'].values()[times]
-        ssq_pSyk = math.sqrt(np.sum((pSyk-trial_pSyk)**2))
-        
-        trial_pFC = self.simulation.results().states()['FCepsilonRI/pFC'].values()[times] 
-        ssq_pFC = math.sqrt(np.sum((pFC-trial_pFC)**2))
-
-        #if(ssq_pFC < 0.1 and ssq_pSyk <0.1):
-            #print('Parameter set: ', self.constants)
-            #print(parameter_values)
-            #ax1.plot(times,trial_pFC)
-            #ax2.plot(times,trial_pSyk)
-            #ax3.plot(ssq_pFC,ssq_pSyk,'*')
-            #print(ssq_pSyk, ssq_pFC)
-        
-        return([ssq_pSyk+ssq_pFC,ssq_pSyk, ssq_pFC])
+        trial = np.zeros([num_series,len(times)])
+        ssq = np.zeros(num_series+1)
+		
+        for i in range(0,num_series):
+            trial[i,:] = self.simulation.results().states()[expt_state_uri[i]].values()[times]
+            ssq[i+1] = math.sqrt(np.sum((exp_data[i,:]-trial[i,:])**2))
+        ssq[0] = np.sum(ssq[1:num_series])
+        return ssq 
         
     
     def run_parameter_sweep(self):
-        Y = np.zeros([self.samples.shape[0],3+self.samples.shape[1]])
+        num_cols = num_series + 1 + self.samples.shape[1]
+        Y = np.zeros([self.samples.shape[0],num_cols])
         for i, X in enumerate(self.samples):
-            Y[i,0:3] = self.evaluate_ssq(X)
-            Y[i,3:self.samples.shape[1]+3]=X
+            ssq = self.evaluate_ssq(X)
+            Y[i,0] = ssq[0]
+            for j in range(0,num_series):
+                Y[i,j+1] = ssq[j+1]
+            Y[i,(j+2):num_cols]=X
         ind = np.argsort(Y[:,0])
         Z=Y[ind]
         return Z
@@ -116,11 +120,11 @@ class Simulation(object):
             #print(param_sweep_results[i,j+3])
             #print('Parameter set: ', self.constants)
             self.simulation.run()
-            trial_pSyk = self.simulation.results().states()['FCepsilonRI/pSyk'].values()[times]
-            #print(trial_pSyk)
-            trial_pFC = self.simulation.results().states()['FCepsilonRI/pFC'].values()[times]
-            ax1.plot(times,trial_pFC)
-            ax2.plot(times,trial_pSyk)
+            trial = np.zeros([num_series,len(times)])
+            for i in range(0,num_series):
+                trial[i,:] = self.simulation.results().states()[expt_state_uri[i]].values()[times]
+            ax1.plot(times,trial[0,:])
+            ax2.plot(times,trial[1,:])
             ax3.plot(param_sweep_results[i,1],param_sweep_results[i,2],"*")
 
 plt.close('all')
@@ -131,8 +135,8 @@ v = s.run_parameter_sweep()
 s.plot_n_best(5,v)
 
 
-ax1.plot(times,pFC,'*')
-ax2.plot(times,pSyk,'*')
+ax1.plot(times,exp_data[0,:],'*')
+ax2.plot(times,exp_data[1,:],'*')
 
 plt.show()
 
