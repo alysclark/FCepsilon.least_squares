@@ -85,7 +85,7 @@ parameter_bounds = tuple(parameter_bounds)
 
 # Run the simulation using given parameter values and return the
 # values of the state variable for which we have experiment data
-def model_function_lsq(params, expt_time, expt_pSyk, expt_pGRB2, return_type, debug=False):
+def model_function_lsq(params, expt_time, expt_pSyk, expt_pGRB2, return_type, debug=True):
     if debug:
         print('Parameters:')
         print(params)
@@ -93,6 +93,7 @@ def model_function_lsq(params, expt_time, expt_pSyk, expt_pGRB2, return_type, de
     simulation.resetParameters()
     simulation.clearResults()
     for n, v in enumerate(params[0:len(constant_parameter_names)]):
+        print(n,constant_parameter_names[n],v)
         constants[constant_parameter_names[n]] = v
     for n, v in enumerate(params[len(constant_parameter_names):len(state_parameter_names)+len(constant_parameter_names)]):
         states[state_parameter_names[n]] = v
@@ -122,6 +123,8 @@ def model_function_lsq(params, expt_time, expt_pSyk, expt_pGRB2, return_type, de
 #minimize(model_function_lsq, initial_params, args=(expt_time,expt_pSyk,expt_pGRB2), bounds=np.transpose(np.array(parameter_bounds)), method='SLSQP',options={'xtol': 1e-8, 'disp': True})
 # least_squares(model_function_lsq, initial_params, args=(expt_time,expt_pSyk,expt_pGRB2),
 #              bounds=parameter_bounds, xtol=1e-5,verbose=1)
+
+print(parameter_bounds)
 
 opt =least_squares(model_function_lsq, initial_params, args=(times,pFC,pSyk, 'optimisation'),
                                bounds=parameter_bounds,xtol=1e-6,verbose=1)
