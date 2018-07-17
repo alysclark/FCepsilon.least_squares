@@ -10,9 +10,9 @@ from scipy.optimize import curve_fit, minimize,least_squares
 import OpenCOR as oc
 
 
-bounds_dictionary = {'FCepsilonRI/k_f1': [-1,2], 'FCepsilonRI/k_f2': [-1,2],'FCepsilonRI/k_f3': [-1,2], 'FCepsilonRI/k_f4': [-1,2],'FCepsilonRI/K_1': [-1,2], 'FCepsilonRI/K_2': [-1,2],'FCepsilonRI/K_3': [-1,2],
-	'FCepsilonRI/K_4': [-1,2], 'FCepsilonRI/K_5': [-1,2],'FCepsilonRI/K_6': [-1,2], 'FCepsilonRI/K_7': [-1,2],'FCepsilonRI/K_8': [-1,2], 'FCepsilonRI/K_9': [-1,2],'FCepsilonRI/K_10': [-1,2], 'FCepsilonRI/K_11': [-1,2],
-	'FCepsilonRI/K_12': [-1,2],'FCepsilonRI/V_1': [-1,2],'FCepsilonRI/V_2': [-1,2],'FCepsilonRI/V_3': [-1,2],'FCepsilonRI/V_4': [-1,2]}
+bounds_dictionary = {'FCepsilonRI/k_f1': [-6,2], 'FCepsilonRI/k_f2': [-6,2],'FCepsilonRI/k_f3': [-6,2], 'FCepsilonRI/k_f4': [-6,2],'FCepsilonRI/K_1': [-6,2], 'FCepsilonRI/K_2': [-6,2],'FCepsilonRI/K_3': [-6,2],
+	'FCepsilonRI/K_4': [-6,2], 'FCepsilonRI/K_5': [-6,2],'FCepsilonRI/K_6': [-6,2], 'FCepsilonRI/K_7': [-6,2],'FCepsilonRI/K_8': [-6,2], 'FCepsilonRI/K_9': [-6,2],'FCepsilonRI/K_10': [-6,2], 'FCepsilonRI/K_11': [-6,2],
+	'FCepsilonRI/K_12': [-6,2],'FCepsilonRI/V_1': [-6,2],'FCepsilonRI/V_2': [-6,2],'FCepsilonRI/V_3': [-6,2],'FCepsilonRI/V_4': [-6,2]}
 
 # The state variable  or variables in the model that the data represents
 expt_state_uri = ['FCepsilonRI/pFC','FCepsilonRI/pSyk']
@@ -26,6 +26,9 @@ exp_data[1,:] = np.array([0.0,  0.05437, 0.0644, 0.0518, 0.04373])*.474 #pSyk
 
 #Number of samples to generate for each parameter
 num_samples = 10
+
+#Number of results to retain, if we store too many in high res parameter sweeps we can have memory issues
+num_retain = 10
 
 
 #List of parameters you want to exclude from fit
@@ -46,18 +49,11 @@ class Simulation(object):
 			
         self.model_constants = OrderedDict({k: self.constants[k]
                                             for k in self.constant_parameter_names})
-
-        print('model const:')
-        
-        print(self.model_constants)
-        print('const:')
-        print(self.constants)
         
         # default the parameter bounds to something sensible, needs to be set directly
         bounds = []
         for c in self.constant_parameter_names:
             v = self.constants[c];
-            print(c,v)
             bounds.append([bounds_dictionary[c][0], bounds_dictionary[c][1]])
         # define our sensitivity analysis problem
         self.problem = {
@@ -98,7 +94,7 @@ class Simulation(object):
 		#This is not actually clearing and resetting results
         for i, k in enumerate(self.model_constants.keys()):
             self.constants[k] = 10.0**parameter_values[i]
-            print(k,self.constants[k])
+            #print(k,self.constants[k])
         #print('Parameter set: ', self.constants)
         self.simulation.run()
         trial = np.zeros([num_series,len(times)])
@@ -107,19 +103,31 @@ class Simulation(object):
         for i in range(0,num_series):
             trial[i,:] = self.simulation.results().states()[expt_state_uri[i]].values()[times]
             ssq[i+1] = math.sqrt(np.sum((exp_data[i,:]-trial[i,:])**2))
-        ssq[0] = np.sum(ssq[1:num_series])
+        ssq[0] = np.sum(ssq[1:num_series+1])
         return ssq 
         
     
     def run_parameter_sweep(self):
         num_cols = num_series + 1 + self.samples.shape[1]
-        Y = np.zeros([self.samples.shape[0],num_cols])
+        num_rows = num_retain+1
+        Y = np.zeros([num_rows,num_cols])
         for i, X in enumerate(self.samples):
             ssq = self.evaluate_ssq(X)
-            Y[i,0] = ssq[0]
-            for j in range(0,num_series):
-                Y[i,j+1] = ssq[j+1]
-            Y[i,(j+2):num_cols]=X
+            j = i
+            if j < num_retain:
+                Y[j,0] = ssq[0]
+                for k in range(0,num_series):
+                    Y[j,k+1] = ssq[k+1]
+                Y[j,(k+2):num_cols]=X
+            else:
+                Y[num_retain,0] = ssq[0]
+                for k in range(0,num_series):
+                    Y[num_retain,k+1] = ssq[k+1]
+                Y[num_retain,(k+2):num_cols]=X
+                ind = np.argsort(Y[:,0])
+                Y=Y[ind]
+				
+			#Want to retain top N here
         ind = np.argsort(Y[:,0])
         Z=Y[ind]
         return Z
@@ -138,9 +146,21 @@ class Simulation(object):
                 trial[i,:] = self.simulation.results().states()[expt_state_uri[i]].values()[times]
             ax1.plot(times,trial[0,:])
             ax2.plot(times,trial[1,:])
-            ax3.plot(param_sweep_results[i,1],param_sweep_results[i,2],"*")
+        ax3.plot(param_sweep_results[0:n,1],param_sweep_results[0:n,2],"*")
+        #ax3.set_xlim([ np.min(param_sweep_results[:,1]), np.max(param_sweep_results[:,1])])
+        #ax3.set_ylim([ np.min(param_sweep_results[:,2]), np.max(param_sweep_results[:,2])])
 			
-    def model_function_lsq(self,params,times,exp_data, return_type, debug=True):
+    def parameter_bounds(self):
+        # # Set bounds for parameters (optional)
+        parameter_bounds = [len(self.constant_parameter_names)*[0], len(self.constant_parameter_names)*[6]]
+        for i in range(0,len(initial_params)):
+            parameter_bounds[0][i] = 10**bounds_dictionary[self.constant_parameter_names[i]][0]
+            parameter_bounds[1][i] = 10**bounds_dictionary[self.constant_parameter_names[i]][1]
+
+        parameter_bounds = tuple(parameter_bounds)
+        return parameter_bounds
+			
+    def model_function_lsq(self,params,times,exp_data, return_type, debug=False):
         if debug:
              print('Fitting Parameters:')
              print(params)
@@ -148,7 +168,7 @@ class Simulation(object):
         self.simulation.resetParameters()
         self.simulation.clearResults()
         for j, k in enumerate(self.model_constants.keys()):
-            print(j,k,params[j])
+            #print(j,k,params[j])
             self.constants[k] = params[j]
 
         try:
@@ -163,8 +183,9 @@ class Simulation(object):
             f1 = self.simulation.results().states()[expt_state_uri[0]].values()[times]-exp_data[0,:]
             f2 = self.simulation.results().states()[expt_state_uri[1]].values()[times]-exp_data[1,:]
             f = np.concatenate((f1,f2))
-            print('SSD:')
-            print(sum(f**2))
+            if debug:
+                print('SSD:')
+                print(sum(f**2))
         elif return_type == 'visualisation':
             f1 = self.simulation.results().states()[expt_state_uri[0]].values()[times]
             f2 = self.simulation.results().states()[expt_state_uri[1]].values()[times]
@@ -172,11 +193,11 @@ class Simulation(object):
         return f
 
 plt.close('all')
-fig, (ax1, ax2,ax3) = plt.subplots(3, sharey=True)
+fig, (ax1, ax2,ax3) = plt.subplots(3, sharey=False)
 s = Simulation()
 
 v = s.run_parameter_sweep()
-s.plot_n_best(5,v)
+s.plot_n_best(num_retain,v)
 
 
 ax1.plot(times,exp_data[0,:],'*')
@@ -187,16 +208,18 @@ plt.show()
 initial_params = 10**v[0,num_series+1:len(v[0,:])]
 print(initial_params)
 
+parameter_bounds = s.parameter_bounds()
+
 
 opt =least_squares(s.model_function_lsq, initial_params, args=(times,exp_data, 'optimisation'),
-                               xtol=1e-6,verbose=1)
+                               bounds=parameter_bounds,xtol=1e-6,verbose=1)
 
 f =s.model_function_lsq(opt.x, times, exp_data,'visualisation', debug=False)
 
 fig, ax = plt.subplots()
 plt.plot(times, exp_data[1,:], 'o', label='Experiment pSyk', color='red')
 plt.plot(times, f[1], '-', label='Model pSyk', color='blue')
-pSyk_error = f[1] - exp_data[1,:]
+pSyk_error = abs(f[1] - exp_data[1,:])
 
 print('pSyk error = ' + str(np.mean(pSyk_error)) + ' (SD ' + str(np.std(pSyk_error)) +')')
 
@@ -206,7 +229,7 @@ plt.show()
 fig, ax = plt.subplots()
 plt.plot(times, exp_data[0,:], 'o', label='Experiment pFC', color='red')
 plt.plot(times, f[0], '-', label='Model pFC', color='blue')
-pFC_error = f[0] - exp_data[0,:]
+pFC_error = abs(f[0] - exp_data[0,:])
 print('pFC error = ' + str(np.mean(pFC_error)) + ' (SD ' + str(np.std(pFC_error)) +')')
 fig.canvas.draw()
 plt.show()
