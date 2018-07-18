@@ -32,6 +32,7 @@
         <variable name="t" public_interface="out" units="s"/>
     </component>
     <component name="FCepsilonRI">
+        <variable name="t" public_interface="in" units="s"/>
         <variable name="J1" units="uM_per_s"/>
         <variable name="J2" units="uM_per_s"/>
         <variable name="J3" units="uM_per_s"/>
@@ -39,34 +40,38 @@
         <variable name="J5" units="uM_per_s"/>
         <variable name="J6" units="uM_per_s"/>
         <variable name="J7" units="uM_per_s"/>
-        <!--Estimation start-->
-        <variable initial_value="32.36" name="k_f1" units="per_s"/>
-        <variable initial_value="44.67" name="K_1" units="uM"/>
-        <variable initial_value="0.083" name="k_f2" units="per_s"/>
-        <variable initial_value="1.69e-06" name="K_2" units="uM"/>
-        <variable initial_value="0.46" name="K_3" units="uM"/>
-        <variable initial_value="0.87" name="k_f5" units="per_s"/>
-        <variable initial_value="4.68e-6" name="k_r5" units="per_uM_per_s"/>
-        <variable initial_value="4.79" name="k_f6" units="per_s"/>
-        <variable initial_value="1.2e-04" name="k_r6" units="per_uM_per_s"/>
-        <variable initial_value="1" name="V_7" units="uM_per_s"/>
-        <variable initial_value="1" name="K_7" units="uM"/>
-        <variable initial_value="100" name="Lyn" units="uM"/>
-        <variable initial_value="6.39" name="Grb2" units="uM"/>
-        <!--Estimation end-->
-        <variable initial_value="0.93" name="k_f3" units="per_s"/>
-        <variable initial_value="0.112" name="k_f4" units="per_uM_per_s"/>
-        <variable initial_value="0.0016" name="k_r4" units="per_s"/>
-        <variable initial_value="1" name="FC" units="uM"/>
-        <variable initial_value="0" name="pFC" units="uM"/>
-        <variable initial_value="0.005" name="Syk" units="uM"/>
-        <variable initial_value="0" name="pSyk" units="uM"/>
+        <variable name="J8" units="uM_per_s"/>
+        <!--variables-->
+        <variable initial_value="0.0471623513639183" name="pLyn" units="uM"/>
+        <variable initial_value="0.473765727686631" name="FC" units="uM"/>
+        <variable initial_value="0.0" name="pFC" units="uM"/>
+        <variable initial_value="0.402903914280305" name="Syk" units="uM"/>
+        <variable initial_value="0.0" name="pSyk" units="uM"/>
+        <variable initial_value="0" name="Grb2" units="uM"/>
         <variable initial_value="0" name="pGrb2" units="uM"/>
-        <variable initial_value="0" name="pGrb2PI3K" units="uM"/>
-        <variable initial_value="0.01" name="PI3K" units="uM"/>
-        <variable initial_value="0" name="PI3Ka" units="uM"/>
-        <variable initial_value="0" name="pGrb2PI3Ka" units="uM"/>
-        <variable name="t" public_interface="in" units="s"/>
+        <variable initial_value="0" name="PI3k" units="uM"/>
+        <variable initial_value="0" name="PI3kstar" units="uM"/>
+        <!--rate constants-->
+        <variable initial_value="1.0" name="k_f1" units="per_uM_per_s"/>
+        <variable initial_value="1.0" name="k_f2" units="per_uM_per_s"/>
+        <variable initial_value="1.0" name="k_f3" units="per_uM_per_s"/>
+        <variable initial_value="1.0" name="k_f4" units="per_uM_per_s"/>
+        <variable initial_value="1.0" name="K_1" units="uM"/>
+        <variable initial_value="1.0" name="K_2" units="uM"/>
+        <variable initial_value="1.0" name="K_3" units="uM"/>
+        <variable initial_value="1.0" name="K_4" units="uM"/>
+        <variable initial_value="1.0" name="K_5" units="uM"/>
+        <variable initial_value="1.0" name="K_6" units="uM"/>
+        <variable initial_value="1.0" name="K_7" units="uM"/>
+        <variable initial_value="1.0" name="K_8" units="uM"/>
+        <variable initial_value="1.0" name="K_9" units="uM"/>
+        <variable initial_value="1.0" name="K_10" units="uM"/>
+        <variable initial_value="1.0" name="K_11" units="uM"/>
+        <variable initial_value="1.0" name="K_12" units="uM"/>
+        <variable initial_value="1.0" name="V_1" units="uM_per_s"/>
+        <variable initial_value="1.0" name="V_2" units="uM_per_s"/>
+        <variable initial_value="1.0" name="V_3" units="uM_per_s"/>
+        <variable initial_value="1.0" name="V_4" units="uM_per_s"/>
         <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
                 <eq/>
@@ -76,7 +81,7 @@
                     <apply>
                         <times/>
                         <ci>k_f1</ci>
-                        <ci>Lyn</ci>
+                        <ci>pLyn</ci>
                         <ci>FC</ci>
                     </apply>
                     <apply>
@@ -86,14 +91,10 @@
                             <ci>K_1</ci>
                             <apply>
                                 <plus/>
-                                <cn cellml:units="dimensionless">1</cn>
+                                <cn cellml:units="dimensionless">1.0</cn>
                                 <apply>
                                     <divide/>
-                                    <apply>
-                                        <times/>
-                                        <ci>pFC</ci>
-                                        <ci>Syk</ci>
-                                    </apply>
+                                    <ci>pFC</ci>
                                     <ci>K_2</ci>
                                 </apply>
                             </apply>
@@ -109,31 +110,13 @@
                     <divide/>
                     <apply>
                         <times/>
-                        <ci>k_f2</ci>
+                        <ci>V_1</ci>
                         <ci>pFC</ci>
-                        <ci>Syk</ci>
-                        <ci>Lyn</ci>
                     </apply>
                     <apply>
                         <plus/>
-                        <apply>
-                            <times/>
-                            <ci>K_2</ci>
-                            <apply>
-                                <plus/>
-                                <cn cellml:units="dimensionless">1</cn>
-                                <apply>
-                                    <divide/>
-                                    <ci>pFC</ci>
-                                    <ci>K_1</ci>
-                                </apply>
-                            </apply>
-                        </apply>
-                        <apply>
-                            <times/>
-                            <ci>pFC</ci>
-                            <ci>Syk</ci>
-                        </apply>
+                        <ci>K_3</ci>
+                        <ci>pFC</ci>
                     </apply>
                 </apply>
             </apply>
@@ -144,14 +127,26 @@
                     <divide/>
                     <apply>
                         <times/>
-                        <ci>k_f3</ci>
-                        <ci>pSyk</ci>
-                        <ci>Grb2</ci>
+                        <ci>k_f2</ci>
+                        <ci>pFC</ci>
+                        <ci>Syk</ci>
                     </apply>
                     <apply>
                         <plus/>
-                        <ci>K_3</ci>
-                        <ci>Grb2</ci>
+                        <apply>
+                            <times/>
+                            <ci>K_4</ci>
+                            <apply>
+                                <plus/>
+                                <cn cellml:units="dimensionless">1.0</cn>
+                                <apply>
+                                    <divide/>
+                                    <ci>pSyk</ci>
+                                    <ci>K_5</ci>
+                                </apply>
+                            </apply>
+                        </apply>
+                        <ci>Syk</ci>
                     </apply>
                 </apply>
             </apply>
@@ -159,17 +154,16 @@
                 <eq/>
                 <ci>J4</ci>
                 <apply>
-                    <minus/>
+                    <divide/>
                     <apply>
                         <times/>
-                        <ci>k_f4</ci>
-                        <ci>pGrb2</ci>
-                        <ci>PI3K</ci>
+                        <ci>V_2</ci>
+                        <ci>pSyk</ci>
                     </apply>
                     <apply>
-                        <times/>
-                        <ci>k_r4</ci>
-                        <ci>pGrb2PI3K</ci>
+                        <plus/>
+                        <ci>K_6</ci>
+                        <ci>pSyk</ci>
                     </apply>
                 </apply>
             </apply>
@@ -177,17 +171,29 @@
                 <eq/>
                 <ci>J5</ci>
                 <apply>
-                    <minus/>
+                    <divide/>
                     <apply>
                         <times/>
-                        <ci>k_f5</ci>
-                        <ci>pGrb2PI3K</ci>
+                        <ci>k_f3</ci>
+                        <ci>pSyk</ci>
+                        <ci>Grb2</ci>
                     </apply>
                     <apply>
-                        <times/>
-                        <ci>k_r5</ci>
-                        <ci>pGrb2</ci>
-                        <ci>PI3Ka</ci>
+                        <plus/>
+                        <apply>
+                            <times/>
+                            <ci>K_7</ci>
+                            <apply>
+                                <plus/>
+                                <cn cellml:units="dimensionless">1.0</cn>
+                                <apply>
+                                    <divide/>
+                                    <ci>pGrb2</ci>
+                                    <ci>K_8</ci>
+                                </apply>
+                            </apply>
+                        </apply>
+                        <ci>Grb2</ci>
                     </apply>
                 </apply>
             </apply>
@@ -195,17 +201,16 @@
                 <eq/>
                 <ci>J6</ci>
                 <apply>
-                    <minus/>
+                    <divide/>
                     <apply>
                         <times/>
-                        <ci>k_f6</ci>
-                        <ci>pGrb2PI3Ka</ci>
+                        <ci>V_3</ci>
+                        <ci>pGrb2</ci>
                     </apply>
                     <apply>
-                        <times/>
-                        <ci>k_r6</ci>
+                        <plus/>
+                        <ci>K_9</ci>
                         <ci>pGrb2</ci>
-                        <ci>PI3Ka</ci>
                     </apply>
                 </apply>
             </apply>
@@ -216,13 +221,43 @@
                     <divide/>
                     <apply>
                         <times/>
-                        <ci>V_7</ci>
-                        <ci>PI3Ka</ci>
+                        <ci>k_f4</ci>
+                        <ci>pGrb2</ci>
+                        <ci>PI3k</ci>
                     </apply>
                     <apply>
                         <plus/>
-                        <ci>K_7</ci>
-                        <ci>PI3Ka</ci>
+                        <apply>
+                            <times/>
+                            <ci>K_10</ci>
+                            <apply>
+                                <plus/>
+                                <cn cellml:units="dimensionless">1.0</cn>
+                                <apply>
+                                    <divide/>
+                                    <ci>PI3kstar</ci>
+                                    <ci>K_11</ci>
+                                </apply>
+                            </apply>
+                        </apply>
+                        <ci>PI3k</ci>
+                    </apply>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <ci>J8</ci>
+                <apply>
+                    <divide/>
+                    <apply>
+                        <times/>
+                        <ci>V_4</ci>
+                        <ci>PI3kstar</ci>
+                    </apply>
+                    <apply>
+                        <plus/>
+                        <ci>K_12</ci>
+                        <ci>PI3kstar</ci>
                     </apply>
                 </apply>
             </apply>
@@ -236,8 +271,12 @@
                     <ci>FC</ci>
                 </apply>
                 <apply>
-                    <minus/>
-                    <ci>J1</ci>
+                    <plus/>
+                    <apply>
+                        <minus/>
+                        <ci>J1</ci>
+                    </apply>
+                    <ci>J2</ci>
                 </apply>
             </apply>
             <apply>
@@ -249,7 +288,11 @@
                     </bvar>
                     <ci>pFC</ci>
                 </apply>
-                <ci>J1</ci>
+                <apply>
+                    <minus/>
+                    <ci>J1</ci>
+                    <ci>J2</ci>
+                </apply>
             </apply>
             <apply>
                 <eq/>
@@ -261,8 +304,12 @@
                     <ci>Syk</ci>
                 </apply>
                 <apply>
-                    <minus/>
-                    <ci>J2</ci>
+                    <plus/>
+                    <apply>
+                        <minus/>
+                        <ci>J3</ci>
+                    </apply>
+                    <ci>J4</ci>
                 </apply>
             </apply>
             <apply>
@@ -274,7 +321,11 @@
                     </bvar>
                     <ci>pSyk</ci>
                 </apply>
-                <ci>J2</ci>
+                <apply>
+                    <minus/>
+                    <ci>J3</ci>
+                    <ci>J4</ci>
+                </apply>
             </apply>
             <apply>
                 <eq/>
@@ -286,8 +337,12 @@
                     <ci>Grb2</ci>
                 </apply>
                 <apply>
-                    <minus/>
-                    <ci>J3</ci>
+                    <plus/>
+                    <apply>
+                        <minus/>
+                        <ci>J5</ci>
+                    </apply>
+                    <ci>J6</ci>
                 </apply>
             </apply>
             <apply>
@@ -300,76 +355,42 @@
                     <ci>pGrb2</ci>
                 </apply>
                 <apply>
-                    <plus/>
-                    <apply>
-                        <minus/>
-                        <ci>J3</ci>
-                        <ci>J4</ci>
-                    </apply>
-                    <ci>J6</ci>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <apply>
-                    <diff/>
-                    <bvar>
-                        <ci>t</ci>
-                    </bvar>
-                    <ci>PI3K</ci>
-                </apply>
-                <apply>
-                    <plus/>
-                    <apply>
-                        <minus/>
-                        <ci>J4</ci>
-                    </apply>
-                    <ci>J7</ci>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <apply>
-                    <diff/>
-                    <bvar>
-                        <ci>t</ci>
-                    </bvar>
-                    <ci>PI3Ka</ci>
-                </apply>
-                <apply>
-                    <minus/>
-                    <ci>J6</ci>
-                    <ci>J7</ci>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <apply>
-                    <diff/>
-                    <bvar>
-                        <ci>t</ci>
-                    </bvar>
-                    <ci>pGrb2PI3K</ci>
-                </apply>
-                <apply>
-                    <minus/>
-                    <ci>J4</ci>
-                    <ci>J6</ci>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <apply>
-                    <diff/>
-                    <bvar>
-                        <ci>t</ci>
-                    </bvar>
-                    <ci>pGrb2PI3Ka</ci>
-                </apply>
-                <apply>
                     <minus/>
                     <ci>J5</ci>
                     <ci>J6</ci>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <apply>
+                    <diff/>
+                    <bvar>
+                        <ci>t</ci>
+                    </bvar>
+                    <ci>PI3k</ci>
+                </apply>
+                <apply>
+                    <plus/>
+                    <apply>
+                        <minus/>
+                        <ci>J7</ci>
+                    </apply>
+                    <ci>J8</ci>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <apply>
+                    <diff/>
+                    <bvar>
+                        <ci>t</ci>
+                    </bvar>
+                    <ci>PI3kstar</ci>
+                </apply>
+                <apply>
+                    <minus/>
+                    <ci>J7</ci>
+                    <ci>J8</ci>
                 </apply>
             </apply>
         </math>

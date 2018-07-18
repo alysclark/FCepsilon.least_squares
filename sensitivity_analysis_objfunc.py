@@ -9,7 +9,7 @@ t=np.arange(3841)
 print(len(t))
 times = np.array([0, 240, 480, 960, 1920, 3840])
 pFC = np.array([0.0, 0.0189, 0.0208, 0.0646, 0.0495, 0.0645])
-pSyk = np.array([0.0, 0.0143, 0.0255, 0.0303, 0.0242, 0.0202])
+pSyk = np.array([0.0, 0.0297, 0.05437, 0.0644, 0.0518, 0.04373])
     
 class Simulation(object):
      def __init__(self):
