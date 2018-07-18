@@ -10,22 +10,22 @@ from scipy.optimize import curve_fit, minimize,least_squares
 import OpenCOR as oc
 
 
-bounds_dictionary = {'FCepsilonRI/k_f1': [-6,2], 'FCepsilonRI/k_f2': [-6,2],'FCepsilonRI/k_f3': [-6,2], 'FCepsilonRI/k_f4': [-6,2],'FCepsilonRI/K_1': [-6,2], 'FCepsilonRI/K_2': [-6,2],'FCepsilonRI/K_3': [-6,2],
-	'FCepsilonRI/K_4': [-6,2], 'FCepsilonRI/K_5': [-6,2],'FCepsilonRI/K_6': [-6,2], 'FCepsilonRI/K_7': [-6,2],'FCepsilonRI/K_8': [-6,2], 'FCepsilonRI/K_9': [-6,2],'FCepsilonRI/K_10': [-6,2], 'FCepsilonRI/K_11': [-6,2],
-	'FCepsilonRI/K_12': [-6,2],'FCepsilonRI/V_1': [-6,2],'FCepsilonRI/V_2': [-6,2],'FCepsilonRI/V_3': [-6,2],'FCepsilonRI/V_4': [-6,2]}
+bounds_dictionary = {'FCepsilonRI/k_f1': [-3,2], 'FCepsilonRI/k_f2': [-3,2],'FCepsilonRI/k_f3': [-3,2], 'FCepsilonRI/k_f4': [-3,2],'FCepsilonRI/K_1': [-3,2], 'FCepsilonRI/K_2': [-3,2],'FCepsilonRI/K_3': [-3,2],
+	'FCepsilonRI/K_4': [-3,2], 'FCepsilonRI/K_5': [-3,2],'FCepsilonRI/K_6': [-3,2], 'FCepsilonRI/K_7': [-3,2],'FCepsilonRI/K_8': [-3,2], 'FCepsilonRI/K_9': [-3,2],'FCepsilonRI/K_10': [-3,2], 'FCepsilonRI/K_11': [-3,2],
+	'FCepsilonRI/K_12': [-3,2],'FCepsilonRI/V_1': [-3,2],'FCepsilonRI/V_2': [-3,2],'FCepsilonRI/V_3': [-3,2],'FCepsilonRI/V_4': [-3,2]}
 
 # The state variable  or variables in the model that the data represents
+num_series = 2
 expt_state_uri = ['FCepsilonRI/pFC','FCepsilonRI/pSyk']
 
 #Some example output that we are maybe aiming for
 times = np.array([0,  480, 960, 1920, 3840])
-num_series = 2
 exp_data = np.zeros([num_series,len(times)])
 exp_data[0,:] = np.array([0.0, 0.0408, 0.136, 0.105, 0.136])*.474 #pFC
 exp_data[1,:] = np.array([0.0,  0.05437, 0.0644, 0.0518, 0.04373])*.474 #pSyk
 
 #Number of samples to generate for each parameter
-num_samples = 10
+num_samples =  50
 
 #Number of results to retain, if we store too many in high res parameter sweeps we can have memory issues
 num_retain = 10
@@ -193,20 +193,23 @@ class Simulation(object):
         return f
 
 plt.close('all')
-fig, (ax1, ax2,ax3) = plt.subplots(3, sharey=False)
+#fig, (ax1, ax2,ax3) = plt.subplots(3, sharey=False)
 s = Simulation()
 
 v = s.run_parameter_sweep()
-s.plot_n_best(num_retain,v)
+#s.plot_n_best(num_retain,v)
 
 
-ax1.plot(times,exp_data[0,:],'*')
-ax2.plot(times,exp_data[1,:],'*')
+#ax1.plot(times,exp_data[0,:],'*')
+#ax2.plot(times,exp_data[1,:],'*')
 
-plt.show()
+#plt.show()
 
 initial_params = 10**v[0,num_series+1:len(v[0,:])]
-print(initial_params)
+
+print('Parameters estimated from sweep:')
+for j, k in enumerate(s.model_constants.keys()):
+    print('  {}: {:g} '.format(k, initial_params[j]))
 
 parameter_bounds = s.parameter_bounds()
 
@@ -214,6 +217,10 @@ parameter_bounds = s.parameter_bounds()
 opt =least_squares(s.model_function_lsq, initial_params, args=(times,exp_data, 'optimisation'),
                                bounds=parameter_bounds,xtol=1e-6,verbose=1)
 
+print('Parameters estimated from fit:')
+for j, k in enumerate(s.model_constants.keys()):
+    print('  {}: {:g}'.format(k, opt.x[j]))
+	
 f =s.model_function_lsq(opt.x, times, exp_data,'visualisation', debug=False)
 
 fig, ax = plt.subplots()
