@@ -25,7 +25,7 @@ exp_data[0,:] = np.array([0.0, 0.0408, 0.136, 0.105, 0.136])*.474 #pFC
 exp_data[1,:] = np.array([0.0,  0.05437, 0.0644, 0.0518, 0.04373])*.474 #pSyk
 
 #Number of samples to generate for each parameter
-num_samples =  50
+num_samples =  5
 
 #Number of results to retain, if we store too many in high res parameter sweeps we can have memory issues
 num_retain = 10
@@ -42,13 +42,14 @@ class Simulation(object):
         self.simulation.data().setEndingPoint(3900)
         self.simulation.data().setPointInterval(1)
         self.constants = self.simulation.data().constants()
-        self.constant_parameter_names = list(self.constants.keys())
+        self.constant_parameter_names = sorted(list(self.constants.keys()))
 											
         for i in range(0,len(fit_parameters_exclude)):
             self.constant_parameter_names.remove(fit_parameters_exclude[i])
 			
         self.model_constants = OrderedDict({k: self.constants[k]
                                             for k in self.constant_parameter_names})
+											
         
         # default the parameter bounds to something sensible, needs to be set directly
         bounds = []
@@ -82,7 +83,7 @@ class Simulation(object):
     
     def evaluate_model(self, parameter_values):
         self.simulation.clearResults()
-        for i, k in enumerate(self.model_constants.keys()):
+        for i, k in enumerate(self.constant_parameter_names):
             self.constants[k] = parameter_values[i]
         #print('Parameter set: ', parameter_values)
         self.simulation.run()
@@ -92,7 +93,7 @@ class Simulation(object):
         self.simulation.clearResults()
         self.simulation.resetParameters()
 		#This is not actually clearing and resetting results
-        for i, k in enumerate(self.model_constants.keys()):
+        for i, k in enumerate(self.constant_parameter_names):
             self.constants[k] = 10.0**parameter_values[i]
             #print(k,self.constants[k])
         #print('Parameter set: ', self.constants)
@@ -126,17 +127,19 @@ class Simulation(object):
                 Y[num_retain,(k+2):num_cols]=X
                 ind = np.argsort(Y[:,0])
                 Y=Y[ind]
+                #print(Y)
 				
 			#Want to retain top N here
         ind = np.argsort(Y[:,0])
         Z=Y[ind]
+
         return Z
 
     def plot_n_best(self,n,param_sweep_results):
         for i in range(0,n):
             self.simulation.clearResults()
             self.simulation.resetParameters()
-            for j, k in enumerate(self.model_constants.keys()):
+            for j, k in enumerate(self.constant_parameter_names):
                 self.constants[k] = 10.0**param_sweep_results[i,j+num_series+1]
             #print(param_sweep_results[i,j+3])
             #print('Parameter set: ', self.constants)
@@ -167,7 +170,7 @@ class Simulation(object):
 
         self.simulation.resetParameters()
         self.simulation.clearResults()
-        for j, k in enumerate(self.model_constants.keys()):
+        for j, k in enumerate(self.constant_parameter_names):
             #print(j,k,params[j])
             self.constants[k] = params[j]
 
@@ -208,17 +211,17 @@ v = s.run_parameter_sweep()
 initial_params = 10**v[0,num_series+1:len(v[0,:])]
 
 print('Parameters estimated from sweep:')
-for j, k in enumerate(s.model_constants.keys()):
+for j, k in enumerate(s.constant_parameter_names):
     print('  {}: {:g} '.format(k, initial_params[j]))
 
 parameter_bounds = s.parameter_bounds()
 
 
 opt =least_squares(s.model_function_lsq, initial_params, args=(times,exp_data, 'optimisation'),
-                               bounds=parameter_bounds,xtol=1e-6,verbose=1)
+                               bounds=parameter_bounds,xtol=1e-8,verbose=1)
 
 print('Parameters estimated from fit:')
-for j, k in enumerate(s.model_constants.keys()):
+for j, k in enumerate(s.constant_parameter_names):
     print('  {}: {:g}'.format(k, opt.x[j]))
 	
 f =s.model_function_lsq(opt.x, times, exp_data,'visualisation', debug=False)
